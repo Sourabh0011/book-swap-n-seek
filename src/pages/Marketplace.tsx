@@ -15,6 +15,7 @@ interface Book {
   condition: string;
   category: string;
   image_url: string | null;
+  user_id: string;
   profiles: { username: string | null } | null;
 }
 
@@ -108,6 +109,7 @@ const Marketplace = () => {
               category={book.category}
               imageUrl={book.image_url}
               username={book.profiles?.username ?? undefined}
+              sellerId={book.user_id}
             />
           ))}
         </div>

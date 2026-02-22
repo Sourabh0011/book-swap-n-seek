@@ -67,6 +67,44 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          related_transaction_id: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          related_transaction_id?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          related_transaction_id?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_related_transaction_id_fkey"
+            columns: ["related_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -96,31 +134,49 @@ export type Database = {
       }
       transactions: {
         Row: {
+          address_line: string | null
           book_id: string
           buyer_id: string
+          city: string | null
           created_at: string
           id: string
+          payment_method: string
+          phone: string | null
+          pincode: string | null
           seller_id: string
+          state: string | null
           status: string
           type: string
           updated_at: string
         }
         Insert: {
+          address_line?: string | null
           book_id: string
           buyer_id: string
+          city?: string | null
           created_at?: string
           id?: string
+          payment_method?: string
+          phone?: string | null
+          pincode?: string | null
           seller_id: string
+          state?: string | null
           status?: string
           type?: string
           updated_at?: string
         }
         Update: {
+          address_line?: string | null
           book_id?: string
           buyer_id?: string
+          city?: string | null
           created_at?: string
           id?: string
+          payment_method?: string
+          phone?: string | null
+          pincode?: string | null
           seller_id?: string
+          state?: string | null
           status?: string
           type?: string
           updated_at?: string
