@@ -180,18 +180,6 @@ const Index = () => {
         )}
       </section>
 
-      {/* Footer */}
-      <footer className="border-t bg-card py-8">
-        <div className="container mx-auto flex flex-col items-center gap-2 px-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
-              <BookOpen className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="font-display font-semibold text-foreground">BookBazzar</span>
-          </div>
-          <p>© 2026 BookBazzar. Made for students, by students.</p>
-        </div>
-      </footer>
     </div>
   );
 };
