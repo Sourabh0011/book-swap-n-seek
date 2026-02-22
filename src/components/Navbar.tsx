@@ -16,43 +16,66 @@ const Navbar = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
+  const navLinkClass = (path: string) =>
+    `text-sm font-medium transition-colors hover:text-primary ${
+      isActive(path) ? "text-primary" : "text-muted-foreground"
+    }`;
+
   return (
-    <nav className="sticky top-0 z-50 border-b bg-card/80 backdrop-blur-md">
+    <nav className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur-md">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link to="/" className="flex items-center gap-2">
-          <BookOpen className="h-7 w-7 text-primary" />
+        <Link to="/" className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
+            <BookOpen className="h-5 w-5 text-primary-foreground" />
+          </div>
           <span className="font-display text-xl font-bold text-foreground">
-            Book<span className="text-primary">Bazzar</span>
+            BookBazzar
           </span>
         </Link>
 
         {/* Desktop nav */}
-        <div className="hidden items-center gap-2 md:flex">
-          <Link to="/marketplace">
-            <Button variant={isActive("/marketplace") ? "default" : "ghost"} size="sm">
-              Marketplace
-            </Button>
+        <div className="hidden items-center gap-8 md:flex">
+          <Link to="/marketplace" className={navLinkClass("/marketplace")}>
+            Buy Books
           </Link>
+          <Link to="/add-listing" className={navLinkClass("/add-listing")}>
+            Sell Books
+          </Link>
+          <Link to="/dashboard" className={navLinkClass("/dashboard")}>
+            Dashboard
+          </Link>
+        </div>
+
+        <div className="hidden items-center gap-3 md:flex">
           {user ? (
             <>
               <Link to="/add-listing">
-                <Button variant="hero" size="sm">
+                <Button size="sm" className="rounded-full bg-primary px-5 font-semibold hover:bg-primary/90">
                   <Plus className="h-4 w-4" /> List a Book
                 </Button>
               </Link>
+              <Button variant="ghost" size="icon" className="rounded-full" onClick={handleLogout}>
+                <LogOut className="h-4 w-4 text-muted-foreground" />
+              </Button>
               <Link to="/dashboard">
-                <Button variant={isActive("/dashboard") ? "default" : "ghost"} size="sm">
-                  <User className="h-4 w-4" /> Dashboard
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <User className="h-5 w-5 text-muted-foreground" />
                 </Button>
               </Link>
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                <LogOut className="h-4 w-4" />
-              </Button>
             </>
           ) : (
-            <Link to="/auth">
-              <Button variant="default" size="sm">Sign In</Button>
-            </Link>
+            <>
+              <Link to="/add-listing">
+                <Button size="sm" className="rounded-full bg-primary px-5 font-semibold hover:bg-primary/90">
+                  <Plus className="h-4 w-4" /> List a Book
+                </Button>
+              </Link>
+              <Link to="/auth">
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <User className="h-5 w-5 text-muted-foreground" />
+                </Button>
+              </Link>
+            </>
           )}
         </div>
 
@@ -67,15 +90,18 @@ const Navbar = () => {
         <div className="border-t bg-card p-4 md:hidden">
           <div className="flex flex-col gap-2">
             <Link to="/marketplace" onClick={() => setMobileOpen(false)}>
-              <Button variant="ghost" className="w-full justify-start">Marketplace</Button>
+              <Button variant="ghost" className="w-full justify-start">Buy Books</Button>
+            </Link>
+            <Link to="/add-listing" onClick={() => setMobileOpen(false)}>
+              <Button variant="ghost" className="w-full justify-start">Sell Books</Button>
+            </Link>
+            <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
+              <Button variant="ghost" className="w-full justify-start">Dashboard</Button>
             </Link>
             {user ? (
               <>
                 <Link to="/add-listing" onClick={() => setMobileOpen(false)}>
-                  <Button variant="hero" className="w-full"><Plus className="h-4 w-4" /> List a Book</Button>
-                </Link>
-                <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
-                  <Button variant="ghost" className="w-full justify-start"><User className="h-4 w-4" /> Dashboard</Button>
+                  <Button className="w-full rounded-full bg-primary"><Plus className="h-4 w-4" /> List a Book</Button>
                 </Link>
                 <Button variant="ghost" className="w-full justify-start" onClick={handleLogout}>
                   <LogOut className="h-4 w-4" /> Sign Out
@@ -83,7 +109,7 @@ const Navbar = () => {
               </>
             ) : (
               <Link to="/auth" onClick={() => setMobileOpen(false)}>
-                <Button variant="default" className="w-full">Sign In</Button>
+                <Button className="w-full rounded-full bg-primary">Sign In</Button>
               </Link>
             )}
           </div>

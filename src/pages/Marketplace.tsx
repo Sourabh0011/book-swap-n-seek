@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import BookCard from "@/components/BookCard";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Search } from "lucide-react";
+import { Search, Sparkles } from "lucide-react";
 
 const CATEGORIES = ["All", "Engineering", "Arts", "Science", "Commerce", "Competitive Exams", "Literature", "Other"];
 
@@ -52,7 +51,7 @@ const Marketplace = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="font-display text-3xl font-bold text-foreground">Marketplace</h1>
+        <h1 className="font-display text-3xl font-bold text-foreground">Buy Books</h1>
         <p className="mt-1 text-muted-foreground">Find your next read or trade your old ones</p>
       </div>
 
@@ -64,26 +63,29 @@ const Marketplace = () => {
             placeholder="Search by title or author..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-10"
+            className="rounded-full pl-10"
           />
         </div>
         <div className="flex flex-wrap gap-2">
           {CATEGORIES.map((cat) => (
-            <Badge
+            <button
               key={cat}
-              variant={category === cat ? "default" : "outline"}
-              className="cursor-pointer transition-colors"
               onClick={() => setCategory(cat)}
+              className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                category === cat
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+              }`}
             >
               {cat}
-            </Badge>
+            </button>
           ))}
         </div>
       </div>
 
       {/* Grid */}
       {loading ? (
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="aspect-[3/5] animate-pulse rounded-xl bg-muted" />
           ))}
@@ -93,7 +95,7 @@ const Marketplace = () => {
           <p className="text-lg text-muted-foreground">No books found. Be the first to list one!</p>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {filtered.map((book) => (
             <BookCard
               key={book.id}
