@@ -9,43 +9,9 @@ import { Plus, Trash2, Pencil, CheckCircle, Package, TrendingUp, Bell, Clock, Ma
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 
-interface Book {
-  id: string;
-  title: string;
-  author: string;
-  price: number | null;
-  is_swap: boolean;
-  condition: string;
-  category: string;
-  image_url: string | null;
-  created_at: string;
-}
-
-interface Transaction {
-  id: string;
-  type: string;
-  status: string;
-  created_at: string;
-  payment_method: string | null;
-  address_line: string | null;
-  city: string | null;
-  state: string | null;
-  pincode: string | null;
-  phone: string | null;
-  buyer_id: string;
-  seller_id: string;
-  books: { title: string; author: string; price: number | null } | null;
-  buyer_profile?: { username: string | null } | null;
-}
-
-interface Notification {
-  id: string;
-  title: string;
-  message: string;
-  is_read: boolean;
-  created_at: string;
-  related_transaction_id: string | null;
-}
+interface Book { id: string; title: string; author: string; price: number | null; is_swap: boolean; condition: string; category: string; image_url: string | null; created_at: string; }
+interface Transaction { id: string; type: string; status: string; created_at: string; payment_method: string | null; address_line: string | null; city: string | null; state: string | null; pincode: string | null; phone: string | null; buyer_id: string; seller_id: string; books: { title: string; author: string; price: number | null } | null; buyer_profile?: { username: string | null } | null; }
+interface Notification { id: string; title: string; message: string; is_read: boolean; created_at: string; related_transaction_id: string | null; }
 
 const Dashboard = () => {
   const { user, loading: authLoading } = useAuth();
@@ -64,7 +30,6 @@ const Dashboard = () => {
     if (user) fetchData();
   }, [user, authLoading]);
 
-  // Realtime notifications
   useEffect(() => {
     if (!user) return;
     const channel = supabase
@@ -131,78 +96,60 @@ const Dashboard = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="font-display text-3xl font-bold text-foreground">User Dashboard</h1>
-        <p className="mt-1 text-muted-foreground">Manage your books and track your earnings.</p>
+        <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground text-center md:text-left">User Dashboard</h1>
+        <p className="mt-1 text-muted-foreground text-center md:text-left">Manage your books and track your earnings.</p>
       </div>
 
       {/* Stats Cards */}
-      <div className="mb-8 grid gap-4 md:grid-cols-4">
-        <div className="flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-card">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent">
-            <Package className="h-5 w-5 text-primary" />
+      <div className="mb-8 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { label: "Active Ads", val: myBooks.length, icon: <Package className="h-5 w-5 text-primary" />, bg: "bg-accent" },
+          { label: "Total Earned", val: `₹${totalEarned.toLocaleString()}`, icon: <TrendingUp className="h-5 w-5 text-green-600" />, bg: "bg-green-50" },
+          { label: "Orders", val: incomingOrders.length, icon: <Package className="h-5 w-5 text-amber-600" />, bg: "bg-amber-50" },
+          { label: "Notifications", val: unreadCount, icon: <Bell className="h-5 w-5 text-purple-600" />, bg: "bg-purple-50" }
+        ].map((stat, i) => (
+          <div key={i} className="flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-sm">
+            <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${stat.bg}`}>
+              {stat.icon}
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">{stat.label}</p>
+              <p className="text-xl md:text-2xl font-bold text-foreground">{stat.val}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Active Ads</p>
-            <p className="text-2xl font-bold text-foreground">{myBooks.length}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-card">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50">
-            <TrendingUp className="h-5 w-5 text-green-600" />
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Total Earned</p>
-            <p className="text-2xl font-bold text-foreground">₹{totalEarned.toLocaleString()}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-card">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50">
-            <Package className="h-5 w-5 text-amber-600" />
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Orders</p>
-            <p className="text-2xl font-bold text-foreground">{incomingOrders.length}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-card">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50">
-            <Bell className="h-5 w-5 text-purple-600" />
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Notifications</p>
-            <p className="text-2xl font-bold text-foreground">{unreadCount}</p>
-          </div>
-        </div>
+        ))}
       </div>
 
-      <Tabs defaultValue="listings">
-        <TabsList className="bg-transparent border-b rounded-none w-full justify-start gap-4 px-0">
-          <TabsTrigger value="listings" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none bg-transparent px-1 pb-3 shadow-none">
-            My Listings
-          </TabsTrigger>
-          <TabsTrigger value="orders" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none bg-transparent px-1 pb-3 shadow-none">
-            Incoming Orders {incomingOrders.length > 0 && <Badge className="ml-1 h-5 w-5 rounded-full p-0 text-[10px] justify-center">{incomingOrders.length}</Badge>}
-          </TabsTrigger>
-          <TabsTrigger value="purchases" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none bg-transparent px-1 pb-3 shadow-none">
-            My Purchases
-          </TabsTrigger>
-          <TabsTrigger value="notifications" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none bg-transparent px-1 pb-3 shadow-none">
-            Notifications {unreadCount > 0 && <Badge className="ml-1 h-5 w-5 rounded-full p-0 text-[10px] justify-center bg-destructive">{unreadCount}</Badge>}
-          </TabsTrigger>
-        </TabsList>
+      <Tabs defaultValue="listings" className="w-full">
+        <div className="relative border-b overflow-hidden">
+          <TabsList className="flex w-full justify-start gap-6 bg-transparent rounded-none px-0 overflow-x-auto no-scrollbar whitespace-nowrap">
+            <TabsTrigger value="listings" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none bg-transparent px-1 pb-3 shadow-none shrink-0">
+              My Listings
+            </TabsTrigger>
+            <TabsTrigger value="orders" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none bg-transparent px-1 pb-3 shadow-none shrink-0">
+              Incoming Orders {incomingOrders.length > 0 && <Badge className="ml-1 h-5 w-5 rounded-full p-0 text-[10px] justify-center">{incomingOrders.length}</Badge>}
+            </TabsTrigger>
+            <TabsTrigger value="purchases" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none bg-transparent px-1 pb-3 shadow-none shrink-0">
+              My Purchases
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none bg-transparent px-1 pb-3 shadow-none shrink-0">
+              Notifications {unreadCount > 0 && <Badge className="ml-1 h-5 w-5 rounded-full p-0 text-[10px] justify-center bg-destructive text-white border-none">{unreadCount}</Badge>}
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         {/* My Listings Tab */}
         <TabsContent value="listings" className="mt-6">
           {myBooks.length === 0 ? (
-            <div className="rounded-2xl border bg-card p-12 text-center shadow-card">
+            <div className="rounded-2xl border bg-card p-12 text-center shadow-sm">
               <p className="text-muted-foreground">You haven't listed any books yet.</p>
               <Link to="/add-listing">
-                <Button className="mt-4 rounded-full bg-primary"><Plus className="h-4 w-4" /> Add Your First Book</Button>
+                <Button className="mt-4 rounded-full bg-primary"><Plus className="h-4 w-4 mr-2" /> Add Your First Book</Button>
               </Link>
             </div>
           ) : (
-            <div className="rounded-2xl border bg-card shadow-card overflow-hidden">
-              <div className="hidden md:grid md:grid-cols-[2fr_1fr_1fr_1fr_1fr] gap-4 border-b px-6 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
+              <div className="hidden md:grid md:grid-cols-[2fr_1fr_1fr_1fr_1fr] gap-4 border-b px-6 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground bg-muted/30">
                 <span>Book Details</span>
                 <span>Price</span>
                 <span>Status</span>
@@ -210,26 +157,30 @@ const Dashboard = () => {
                 <span className="text-right">Actions</span>
               </div>
               {myBooks.map((book) => (
-                <div key={book.id} className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr_1fr_1fr] gap-4 items-center border-b last:border-0 px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent">
+                <div key={book.id} className="flex flex-col md:grid md:grid-cols-[2fr_1fr_1fr_1fr_1fr] gap-4 items-start md:items-center border-b last:border-0 px-6 py-4">
+                  <div className="flex items-center gap-3 w-full md:w-auto">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent">
                       <Package className="h-4 w-4 text-primary" />
                     </div>
-                    <div>
-                      <p className="font-medium text-foreground">{book.title}</p>
+                    <div className="min-w-0">
+                      <p className="font-medium text-foreground truncate">{book.title}</p>
                       <p className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Clock className="h-3 w-3" />
                         {formatDistanceToNow(new Date(book.created_at), { addSuffix: true })}
                       </p>
                     </div>
                   </div>
-                  <p className="font-medium text-foreground">{book.is_swap ? "Swap" : `₹${book.price}`}</p>
-                  <span className="inline-flex w-fit rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700">Active</span>
-                  <p className="text-sm text-muted-foreground">—</p>
-                  <div className="flex items-center justify-end gap-2">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground"><Pencil className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => deleteBook(book.id)}><Trash2 className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground"><CheckCircle className="h-4 w-4" /></Button>
+                  <div className="flex w-full justify-between items-center md:contents">
+                    <p className="font-medium text-foreground"><span className="md:hidden text-xs text-muted-foreground block">Price</span>{book.is_swap ? "Swap" : `₹${book.price}`}</p>
+                    <div className="md:block">
+                      <span className="inline-flex rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700">Active</span>
+                    </div>
+                    <p className="hidden md:block text-sm text-muted-foreground">—</p>
+                    <div className="flex items-center justify-end gap-1">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground"><Pencil className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => deleteBook(book.id)}><Trash2 className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground"><CheckCircle className="h-4 w-4" /></Button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -262,8 +213,6 @@ const Dashboard = () => {
                       {order.status}
                     </Badge>
                   </div>
-
-                  {/* Address */}
                   {order.address_line && (
                     <div className="flex items-start gap-2 text-sm text-muted-foreground bg-accent/50 rounded-xl p-3">
                       <MapPin className="h-4 w-4 mt-0.5 text-primary shrink-0" />
@@ -274,34 +223,20 @@ const Dashboard = () => {
                       </div>
                     </div>
                   )}
-
-                  {/* Payment method */}
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    {order.payment_method === "online" ? (
-                      <><CreditCard className="h-4 w-4" /> Online Payment</>
-                    ) : (
-                      <><Banknote className="h-4 w-4" /> Cash on Delivery</>
+                    {order.payment_method === "online" ? <><CreditCard className="h-4 w-4" /> Online</> : <><Banknote className="h-4 w-4" /> COD</>}
+                  </div>
+                  <div className="flex gap-2 pt-1">
+                    {order.status === "pending" && (
+                      <>
+                        <Button size="sm" className="rounded-full" onClick={() => updateOrderStatus(order.id, "confirmed")}>Accept</Button>
+                        <Button size="sm" variant="outline" className="rounded-full" onClick={() => updateOrderStatus(order.id, "cancelled")}>Cancel</Button>
+                      </>
+                    )}
+                    {order.status === "confirmed" && (
+                      <Button size="sm" className="rounded-full bg-green-600 hover:bg-green-700" onClick={() => updateOrderStatus(order.id, "completed")}>Mark Delivered</Button>
                     )}
                   </div>
-
-                  {/* Actions */}
-                  {order.status === "pending" && (
-                    <div className="flex gap-2 pt-1">
-                      <Button size="sm" className="rounded-full" onClick={() => updateOrderStatus(order.id, "confirmed")}>
-                        <CheckCircle className="h-3 w-3" /> Accept
-                      </Button>
-                      <Button size="sm" variant="outline" className="rounded-full" onClick={() => updateOrderStatus(order.id, "cancelled")}>
-                        Cancel
-                      </Button>
-                    </div>
-                  )}
-                  {order.status === "confirmed" && (
-                    <Button size="sm" className="rounded-full bg-green-600 hover:bg-green-700" onClick={() => updateOrderStatus(order.id, "completed")}>
-                      Mark Delivered
-                    </Button>
-                  )}
-
-                  <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(order.created_at), { addSuffix: true })}</p>
                 </div>
               ))}
             </div>
@@ -320,20 +255,11 @@ const Dashboard = () => {
                 <div key={tx.id} className="flex items-center justify-between rounded-2xl border bg-card p-4 shadow-card">
                   <div>
                     <p className="font-medium text-foreground">{tx.books?.title ?? "Unknown Book"}</p>
-                    <p className="text-sm text-muted-foreground">{tx.books?.author} · ₹{tx.books?.price}</p>
                     <p className="text-xs text-muted-foreground mt-1">
                       {tx.payment_method === "online" ? "💳 Online" : "💵 Cash"} · {formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })}
                     </p>
                   </div>
-                  <Badge className={`rounded-full ${
-                    tx.status === "pending" ? "bg-amber-100 text-amber-700" :
-                    tx.status === "confirmed" ? "bg-blue-100 text-blue-700" :
-                    tx.status === "completed" ? "bg-green-100 text-green-700" :
-                    tx.status === "cancelled" ? "bg-red-100 text-red-700" :
-                    "bg-muted text-muted-foreground"
-                  }`}>
-                    {tx.status}
-                  </Badge>
+                  <Badge className="rounded-full">{tx.status}</Badge>
                 </div>
               ))}
             </div>
@@ -349,21 +275,10 @@ const Dashboard = () => {
           ) : (
             <div className="space-y-3">
               {notifications.map((n) => (
-                <div
-                  key={n.id}
-                  onClick={() => !n.is_read && markNotifRead(n.id)}
-                  className={`rounded-2xl border p-4 shadow-card cursor-pointer transition-all ${
-                    n.is_read ? "bg-card" : "bg-accent/50 border-primary/20"
-                  }`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="font-semibold text-foreground text-sm">{n.title}</p>
-                      <p className="text-sm text-muted-foreground mt-1">{n.message}</p>
-                    </div>
-                    {!n.is_read && <div className="h-2 w-2 rounded-full bg-primary shrink-0 mt-1" />}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-2">{formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}</p>
+                <div key={n.id} onClick={() => !n.is_read && markNotifRead(n.id)} className={`rounded-2xl border p-4 cursor-pointer transition-all ${n.is_read ? "bg-card" : "bg-accent/50 border-primary/20"}`}>
+                  <p className="font-semibold text-sm">{n.title}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{n.message}</p>
+                  <p className="text-[10px] text-muted-foreground mt-2">{formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}</p>
                 </div>
               ))}
             </div>

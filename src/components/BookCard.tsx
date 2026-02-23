@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { BookOpen, Star, ShoppingCart } from "lucide-react";
+import { BookOpen, Star, ShoppingCart, ArrowLeftRight } from "lucide-react";
 import BuyDialog from "./BuyDialog";
 
 interface BookCardProps {
@@ -22,20 +22,30 @@ interface BookCardProps {
 const BookCard = ({ id, title, author, price, isSwap, condition, category, imageUrl, username, sellerId }: BookCardProps) => {
   const [buyOpen, setBuyOpen] = useState(false);
 
+  // Helper to handle the click
+  const handleAction = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setBuyOpen(true);
+  };
+
   return (
     <>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -5 }}
         transition={{ duration: 0.3 }}
+        className="h-full"
       >
-        <Card className="group overflow-hidden border bg-card shadow-card transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1">
+        <Card className="group flex h-full flex-col overflow-hidden border bg-card shadow-sm transition-all duration-300 hover:shadow-md">
+          {/* Image Container */}
           <div className="relative aspect-[3/4] overflow-hidden bg-muted">
             {imageUrl ? (
               <img
                 src={imageUrl}
                 alt={title}
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                 loading="lazy"
               />
             ) : (
@@ -43,44 +53,70 @@ const BookCard = ({ id, title, author, price, isSwap, condition, category, image
                 <BookOpen className="h-10 w-10 text-primary/30" />
               </div>
             )}
-            <Badge className="absolute right-2 top-2 bg-card text-foreground text-xs font-medium shadow-sm border-0">
-              {condition}
-            </Badge>
-            {isSwap && (
-              <Badge className="absolute left-2 top-2 bg-swap text-swap-foreground text-xs border-0">
-                Swap
-              </Badge>
-            )}
-          </div>
-          <CardContent className="p-3">
-            <h3 className="font-display text-sm font-semibold leading-tight text-foreground line-clamp-2">
-              {title}
-            </h3>
-            <div className="mt-2 flex items-center justify-between">
-              {isSwap ? (
-                <span className="text-sm font-bold text-swap">Swap</span>
-              ) : (
-                <span className="text-sm font-bold text-foreground">₹{price}</span>
+            
+            {/* Badges */}
+            <div className="absolute top-2 left-2 flex flex-col gap-1">
+              {isSwap && (
+                <Badge className="bg-blue-600 hover:bg-blue-700 text-white border-none px-2 py-0">
+                  Swap
+                </Badge>
               )}
-              <div className="flex items-center gap-0.5 text-xs text-muted-foreground">
-                <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+              <Badge variant="secondary" className="bg-card/80 backdrop-blur-md text-[10px] uppercase tracking-wider font-bold">
+                {condition}
+              </Badge>
+            </div>
+          </div>
+
+          <CardContent className="flex flex-1 flex-col p-3">
+            <div className="flex-1">
+              <p className="text-[10px] font-medium uppercase text-primary/80">{category}</p>
+              <h3 className="mt-0.5 font-display text-sm font-bold leading-tight text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                {title}
+              </h3>
+              <p className="text-xs text-muted-foreground line-clamp-1">by {author}</p>
+            </div>
+
+            <div className="mt-3 flex items-center justify-between border-t pt-2">
+              <div className="flex flex-col">
+                <span className="text-xs text-muted-foreground font-medium">Price</span>
+                <span className="text-sm font-bold text-foreground">
+                  {isSwap ? "Trade Only" : `₹${price}`}
+                </span>
+              </div>
+              <div className="flex items-center gap-0.5 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+                <Star className="h-2.5 w-2.5 fill-amber-500 text-amber-500" />
                 5.0
               </div>
             </div>
-            {!isSwap && price && sellerId && (
-              <Button
-                onClick={() => setBuyOpen(true)}
-                className="mt-2 w-full rounded-full text-xs h-8"
-                size="sm"
-              >
-                <ShoppingCart className="h-3 w-3" />
-                Buy Now
-              </Button>
-            )}
+
+            {/* Always visible Buy/Swap Button */}
+            <Button
+              onClick={handleAction}
+              className={`mt-3 w-full rounded-xl text-xs h-9 font-bold shadow-sm transition-all active:scale-95 ${
+                isSwap 
+                ? "bg-blue-600 hover:bg-blue-700 text-white" 
+                : "bg-primary hover:bg-primary/90"
+              }`}
+              size="sm"
+            >
+              {isSwap ? (
+                <>
+                  <ArrowLeftRight className="mr-1.5 h-3.5 w-3.5" />
+                  Request Swap
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="mr-1.5 h-3.5 w-3.5" />
+                  Buy Now
+                </>
+              )}
+            </Button>
           </CardContent>
         </Card>
       </motion.div>
 
+      {/* The Dialog will only trigger if sellerId exists, 
+          but the button remains visible to prompt the user */}
       {sellerId && (
         <BuyDialog
           open={buyOpen}
