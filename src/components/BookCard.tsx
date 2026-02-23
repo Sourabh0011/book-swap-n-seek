@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Added for redirection
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { BookOpen, Star, ShoppingCart, ArrowLeftRight } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth"; // Added to check user status
 import BuyDialog from "./BuyDialog";
 
 interface BookCardProps {
@@ -21,11 +23,20 @@ interface BookCardProps {
 
 const BookCard = ({ id, title, author, price, isSwap, condition, category, imageUrl, username, sellerId }: BookCardProps) => {
   const [buyOpen, setBuyOpen] = useState(false);
+  const { user } = useAuth(); // Get the current user
+  const navigate = useNavigate(); // Initialize navigate
 
   // Helper to handle the click
   const handleAction = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    // Redirection Logic
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+
     setBuyOpen(true);
   };
 

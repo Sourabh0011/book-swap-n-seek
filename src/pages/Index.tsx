@@ -95,25 +95,35 @@ const Index = () => {
       </section>
 
       {/* Sticky Categories Bar */}
-      <div className="sticky top-[73px] z-40 bg-background/80 backdrop-blur-sm border-b py-3 mb-6">
-        <div className="container mx-auto px-4 overflow-x-auto no-scrollbar">
-          <div className="flex space-x-2 min-w-max">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-5 py-1.5 rounded-full text-sm font-semibold transition-all ${
-                  selectedCategory === cat
-                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-                    : "bg-muted text-muted-foreground hover:bg-accent"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
+<div className="sticky top-[73px] z-40 bg-background/80 backdrop-blur-sm border-b mb-6">
+  <div className="container mx-auto px-4">
+    <div 
+      className="flex items-center space-x-2 py-4 overflow-x-auto scrollbar-hide select-none"
+      style={{
+        msOverflowStyle: 'none',  /* IE and Edge */
+        scrollbarWidth: 'none',   /* Firefox */
+      }}
+    >
+      {/* Webkit specific styling for Chrome/Safari is usually handled in CSS, 
+          but adding a wrapper div helps prevent layout shifts */}
+      <div className="flex space-x-2 min-w-max pb-1"> 
+        {CATEGORIES.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setSelectedCategory(cat)}
+            className={`px-5 py-2 rounded-full text-sm font-semibold transition-all active:scale-95 ${
+              selectedCategory === cat
+                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                : "bg-muted/50 text-muted-foreground hover:bg-accent hover:text-foreground border border-transparent"
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
       </div>
+    </div>
+  </div>
+</div>
 
       {/* Book Grid */}
       <section className="container mx-auto px-4 pb-20">
