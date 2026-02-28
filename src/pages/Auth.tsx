@@ -16,6 +16,14 @@ const Auth = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const clearLocalAuthSession = async () => {
+    try {
+      await supabase.auth.signOut({ scope: "local" });
+    } catch {
+      // ignore local cleanup errors
+    }
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -30,12 +38,34 @@ const Auth = () => {
         if (error) throw error;
         toast({ title: "Check your email", description: "Confirmation link sent!" });
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        navigate("/dashboard");
+        await clearLocalAuthSession();
+
+        let lastError: Error | null = null;
+        for (let attempt = 0; attempt < 2; attempt++) {
+          const { error } = await supabase.auth.signInWithPassword({ email, password });
+          if (!error) {
+            navigate("/dashboard");
+            return;
+          }
+
+          lastError = error;
+          const isFetchError = /failed to fetch/i.test(error.message ?? "");
+          if (!isFetchError || attempt === 1) break;
+
+          await clearLocalAuthSession();
+        }
+
+        if (lastError) throw lastError;
       }
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      const isFetchError = /failed to fetch/i.test(error?.message ?? "");
+      toast({
+        title: "Error",
+        description: isFetchError
+          ? "Network/auth session issue. Please refresh once and try again."
+          : error.message,
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
